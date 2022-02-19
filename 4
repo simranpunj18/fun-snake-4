@@ -1,0 +1,193 @@
+// Copy in your code from Fun Snake 3
+
+
+//I changed that now there are points. 
+//I changed it to make it look like skittles 
+//I added points and I tried to make it crash
+var POINTS_TEXT_X = 5;
+var POINTS_TEXT_Y_BUFFER = 5;
+var POINTS_FONT = "17pt Arial";
+
+var SKITTLE_DELAY = 1000;
+var SKITTLE_COLOR = Color.red;
+
+var SNAKE_WIDTH = 10;
+var SNAKE_HEIGHT = 10;
+var SNAKE_DIM = 20;
+var SNAKE_COLOR = Color.green;
+var SKITTLE_RADIUS = 5;
+
+//Directions
+var currentDirection;
+var NORTH = 0;
+var EAST = 1;
+var SOUTH = 2;
+var WEST = 3;
+
+var dx = 0;
+var dy = 0;
+var snake;
+var bounces;
+var skittle;
+var elemSkittle;
+var background;
+var txtPoints;
+var points = 1;
+var txtLives;
+var lives = 3;
+var x = 10; 
+var y = 10;
+function start(){
+    backGround();
+    Points();
+    Lives();
+    drawSnake();
+    setTimer(snakeMovement,40);
+    keyDownMethod(keyDown);
+    drawSkittle();
+    setTimer(drawSkittle,SKITTLE_DELAY);
+    eatSkittles();
+}
+function Points(){
+    txtPoints = new Text("Points: "+points, "10pt Sans Serif");
+    txtPoints.setPosition(5, txtPoints.height);
+    txtPoints.setColor(Color.white);
+    add(txtPoints);
+}
+function Lives(){
+    txtLives = new Text("Lives: "+lives, "10pt Sans Serif");
+    txtLives.setPosition(getWidth()-txtLives.width-5, txtLives.height);
+    txtLives.setColor(Color.black);
+    add(txtLives);
+}
+
+function backGround(){
+    background = new Rectangle(getWidth(), getHeight());
+    background.setPosition(0,0);
+    background.setColor(Randomizer.nextColor());
+    add(background);
+}
+function drawSnake(){
+    /*
+    snake = new Rectangle(SNAKE_DIM,SNAKE_DIM);
+    snake.setPosition(getWidth()/2-snake.width/2,getHeight()/2-snake.height/2);
+	snake.setColor(SNAKE_COLOR);
+	add(snake);
+	*/
+	snake = new WebImage("https://codehs.com/uploads/446da8d40cc9bde31ab188f690f0bd27");
+	snake.setSize(SNAKE_DIM*2,SNAKE_DIM*2);	
+	snake.setPosition(getWidth()/2-snake.width/2,getHeight()/2-snake.height/2);
+	add(snake);
+}
+function drawSnakeBody(){
+    var slitther = new Rectangle(SNAKE_DIM,SNAKE_DIM);
+    slitther.setPosition(snake.getX(),snake.getY());
+    slitther.setColor(SNAKE_COLOR);
+    add(slitther);
+}
+function snakeMovement(){
+    snake.move(dx,dy);
+    drawSnakeBody();
+    borders();
+    collision();
+}
+function keyDown(e){
+    if(e.keyCode == Keyboard.letter('A')){
+        dx = -4;
+        dy =  0;
+        currentDirection = WEST;
+        snake.setImage("https://codehs.com/uploads/95bc922c69d8b8645b5a870d17cb4dc2");
+        snake.setSize(SNAKE_DIM*3/2,SNAKE_DIM*4/3);
+    }
+    if(e.keyCode == Keyboard.letter('D')){
+        dx =  4;
+        dy =  0;
+        currentDirection = EAST;
+        snake.setImage("https://codehs.com/uploads/3e6db7fb94db41b7b6e8db6019fb91fc");
+        snake.setSize(SNAKE_DIM*6/3,SNAKE_DIM*8/4);
+    }
+    if(e.keyCode == Keyboard.letter('W')){
+        dx =  0;
+        dy =  -4;
+        currentDirection = NORTH;
+        snake.setImage("https://codehs.com/uploads/b478b653728cd9328ea0c97ffc2b852c");
+        snake.setSize(SNAKE_DIM*12/4,SNAKE_DIM*14/7);
+    }
+    if(e.keyCode == Keyboard.letter('S')){
+        dx =  0;
+        dy =  4;
+        currentDirection = SOUTH;
+        snake.setImage("https://codehs.com/uploads/577cafacdb01c36e339024f8979a49ec");
+        snake.setSize(SNAKE_DIM*14/7,SNAKE_DIM*18/6);
+    }
+}
+function borders(){
+    if(snake.getX() > getWidth()){
+        snake.setPosition(0,snake.getY());
+    }
+    if(snake.getX() < 0){
+        snake.setPosition(getWidth(),snake.getY());
+    }
+    if(snake.getY() > getHeight()){
+        snake.setPosition(snake.getX(),0);
+    }
+    if(snake.getY() < 0){
+        snake.setPosition(snake.getX(),getHeight());
+    }
+}
+function gameover(){
+    println("+1 point");
+    println("CRASH");
+    stopTimer(snakeMovement);
+}
+function drawSkittle(){
+    var x = Randomizer.nextInt(0,getWidth());
+    var y = Randomizer.nextInt(0,getHeight());
+    skittle = new WebImage("https://codehs.com/uploads/1d171a460b54ee41adda61ddac53388f");
+    skittle = new Circle(SKITTLE_RADIUS);
+    skittle.setPosition(x,y);
+    add(skittle);
+    elemSkittle = getElementAt(skittle.getX(), skittle.getY());
+    if(elemSkittle == null){
+        remove(skittle);
+    }
+}
+function eatSkittles(){
+    var elemN = getElementAt(snake.getX(), snake.getY()-1);
+    var elemE = getElementAt(snake.getX()+SNAKE_DIM+1,snake.getY());
+    var elemS = getElementAt(snake.getX(), snake.getY()+SNAKE_DIM+1);
+    var elemW = getElementAt(snake.getX()-SNAKE_DIM-1, snake.getY());
+    
+    if(elemN != null && currentDirection==NORTH && elemN.getColor()==SKITTLE_COLOR){
+        println("ATE FOOD");
+        remove(elemN);
+    }else if(elemE != null && currentDirection==NORTH && elemE.getColor()==SKITTLE_COLOR){
+        println("ATE FOOD");
+        remove(elemE);
+    }else if(elemS != null && currentDirection==NORTH && elemS.getColor()==SKITTLE_COLOR){
+        println("ATE FOOD");
+        remove(elemS);
+    }else if(elemW != null && currentDirection==NORTH && elemW.getColor()==SKITTLE_COLOR){
+        println("ATE FOOD");
+        remove(elemW);
+    }
+    
+}
+function collision(){
+    //Bounds based apon rectangle head
+    var elemN = getElementAt(snake.getX(), snake.getY()-1);
+    var elemE = getElementAt(snake.getX()+SNAKE_DIM+1,snake.getY());
+    var elemS = getElementAt(snake.getX(), snake.getY()+SNAKE_DIM+1);
+    var elemW = getElementAt(snake.getX()-SNAKE_DIM-1, snake.getY());
+    
+    if(currentDirection == NORTH && elemN !=null && elemN.getColor() == SNAKE_COLOR){
+        gameover();
+    }else if(currentDirection == SOUTH && elemS !=null && elemS.getColor() == SNAKE_COLOR){
+        gameover();
+    }else if(currentDirection == EAST && elemE !=null && elemE.getColor() == SNAKE_COLOR){
+        gameover();
+    }else if(currentDirection == WEST && elemW !=null && elemW.getColor() == SNAKE_COLOR){
+        gameover();
+    }
+    eatSkittles();
+}
